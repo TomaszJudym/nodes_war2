@@ -6,34 +6,49 @@
 
 sf::Font Node::font = sf::Font();
 
-Node::Node( const std::string& _name, sf::Vector2f& _pos, sf::RenderWindow& _rw ) :
-name( _name ),
-position(_pos),
-renderWindow( _rw )
+void Node::initText()
 {
-    font.loadFromFile( "font/batmfa__.ttf" );
+    font.loadFromFile( "font/Osaka.ttc" );
+    displayedName.setFont( font );
     displayedName.setFillColor( sf::Color::White );
     displayedName.setCharacterSize( 16 );
     displayedName.setString( name );
+    displayedName.setOrigin( displayedName.getGlobalBounds().width/2, 2*(displayedName.getGlobalBounds().height) );
+    setTextPosition( position.x, position.y );
+}
+
+Node::Node( sf::Vector2f& _pos, sf::RenderWindow& _rw ) :
+position(_pos),
+renderWindow( _rw )
+{}
+
+Node::Node( const Node& _cpyNode ) :
+name( _cpyNode.name ),
+position( _cpyNode.position ),
+sprite( _cpyNode.sprite ),
+renderWindow( _cpyNode.renderWindow )
+{
+    initText();
 }
 
 void Node::initSprite()
 {
     sprite.setTexture( image );
-    sprite.setOrigin( image.getSize().x/2, image.getSize().y/2 );
     sprite.setScale( 0.15f, 0.15f );
+    sprite.setOrigin( sprite.getGlobalBounds().width, sprite.getGlobalBounds().height/2 );
     sprite.setPosition( position );
 }
 
 void Node::setPosition( const sf::Vector2f& _pos )
 {
-    setTextPosition( _pos.x, _pos.y-image.getSize().y/2 );
     sprite.setPosition( _pos );
+    setTextPosition( position.x, position.y-image.getSize().y );
 }
 
 void Node::draw()
 {
     renderWindow.draw( sprite );
+    renderWindow.draw( displayedName );
 }
 
 void Node::setTextPosition( float _x, float _y )

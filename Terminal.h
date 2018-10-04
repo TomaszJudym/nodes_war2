@@ -5,10 +5,6 @@
 #ifndef ABSEIL_TERMINAL_H
 #define ABSEIL_TERMINAL_H
 
-#define DEBUG_LOGS 1
-
-#define DLOG( x ) { if( DEBUG_LOGS ) std::cout << x << std::endl; }
-
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <sstream>
@@ -16,14 +12,22 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <map>
 
-class Terminal {
+class Terminal
+{
+
 public:
     explicit Terminal( sf::RenderWindow& );
     void draw();
     void update( const char );
     bool update( short );
+    void update( const std::string& _str );
     void loadInitLog( std::string& _logFileDir );
+    void clear();
+    std::string catchCommand();
+
+
 private:
     typedef std::chrono::milliseconds mili;
 

@@ -8,25 +8,19 @@ Terminal::Terminal( sf::RenderWindow& _window ) :
 terminalCharacterSize(16),
 position(20, 20),
 renderWindowPtr( _window ),
-terminalFontDir( "font/batmfa__.ttf" )
+//terminalFontDir( "font/batmfa__.ttf" )
+terminalFontDir( "font/Osaka.ttc" )
 {
-
-        DLOG("Entering Terminal constructor...");
     if( !terminalFont.loadFromFile( terminalFontDir ) )
     {
         std::cerr << "Error loading font file: " << terminalFontDir <<
                   "\nexiting..." << std::endl;
     }
 
-
-
     text.setFont(terminalFont);
     text.setCharacterSize(terminalCharacterSize);
     text.setFillColor( sf::Color::White );
     text.setPosition( position );
-
-
-        DLOG("Exiting Terminal constructor...");
 }
 
 void Terminal::draw()
@@ -36,8 +30,12 @@ void Terminal::draw()
 
 void Terminal::update( const char _input_char )
 {
+    std::cout << "received: " << _input_char << std::endl;
     if( !(terminalCharacterSize % 30) )
         ss += "\n";
+    if( _input_char == '\n' ) {
+        std::cout << "encountered newline" << std::endl;
+    }
     ss += _input_char;
     ++terminalCharacterSize;
     text.setString( ss );
@@ -53,6 +51,14 @@ bool Terminal::update( short _how_many_delete = 1 )
         return true;
     }
     return false;
+}
+
+void Terminal::update( const std::string& _str )
+{
+    for( const auto& x : _str )
+    {
+        update( x );
+    }
 }
 
 void Terminal::loadInitLog( std::string& _logFileDir )
@@ -108,6 +114,11 @@ void Terminal::loadInitLog( std::string& _logFileDir )
     fs.close();
 }
 
+void Terminal::clear()
+{
+    text.setString("");
+}
+
 std::string Terminal::getLastNLines( unsigned int _nLines, std::string::const_iterator _end )
 {
     auto beginningIter = _end;
@@ -120,4 +131,26 @@ std::string Terminal::getLastNLines( unsigned int _nLines, std::string::const_it
     // one char after newline
     ++beginningIter;
     return std::string( beginningIter, _end );
+}
+
+std::string Terminal::catchCommand()
+{
+    update( (char)'\n' );
+    text.setString( ss );
+    renderWindowPtr.draw( text );
+    renderWindowPtr.display();
+    std::string commandToExecute;
+    if( ss.size() > 30 )
+    {
+        std::string::iterator beginIter = ss.begin() + ss.find_last_of( '\n' );
+        commandToExecute = std::string( beginIter, ss.end() );
+    }
+    else
+    {
+        if( !ss.empty() )
+            commandToExecute = ss;
+        else
+            update( (char)'\n' );
+    }
+    return commandToExecute;
 }
