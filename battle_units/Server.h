@@ -2,8 +2,8 @@
 // Created by Ackan on 17.09.2018.
 //
 
-#ifndef ABSEIL_SERVER_H
-#define ABSEIL_SERVER_H
+#ifndef _SERVER_H
+#define _SERVER_H
 
 #include "Node.h"
 #include <SFML/Graphics.hpp>
@@ -22,4 +22,4 @@ public:
 };
 
 
-#endif //ABSEIL_SERVER_H
+#endif // _SERVER_H

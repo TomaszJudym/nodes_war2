@@ -15,6 +15,8 @@
 
 #include "battle_units/Server.h"
 #include "battle_units/User.h"
+
+#include "Tools/ThicknessLine.h"
 #define DEBUG_LOGS 1
 
 using milisec = std::chrono::milliseconds;
@@ -68,6 +70,10 @@ int main() {
 
     sf::Event event;
 
+    ThicknessLine line( sf::Vector2f(30.f, 50.f)
+                      , sf::Vector2f(50.5, 100.f)
+                      , sf::Color(118, 56, 100)); // edgy vaporwave color
+
     //window.setVerticalSyncEnabled(true);
     terminal.update( (short) 69 );
     terminal.loadInitLog( init_log_file );
@@ -108,6 +114,7 @@ int main() {
 
         loadRing.draw();
         server1.draw();
+        line.draw(window);
         window.display();
     }
     return 0;
