@@ -29,13 +29,14 @@ class User : public Node
     static const std::map< int, std::wstring > names;
     static size_t userCount;
 
-    User( sf::Vector2f& _pos, sf::RenderWindow& _rw);
+    User( const sf::Vector2f& _pos );
 
     Server* connectedServerPtr;
 
 public:
-    static std::shared_ptr<User> spawnUser( sf::Vector2f& _pos,
-                                            sf::RenderWindow& _rw  );
+    static std::shared_ptr<User> spawnUser( const sf::Vector2f& _pos);
+    static std::shared_ptr<User> spawnUser( float _x, float _y ); // wrapper for calling sf::Vector2f&
+
     User(const User&) = default;
     User(User&&) = default;
     void makeConnection( Node* _target ) override;

@@ -15,6 +15,7 @@ class ThicknessLine : public sf::Drawable
 public:
     ThicknessLine(const sf::Vector2f& _point1, const sf::Vector2f& _point2, sf::Color _col = sf::Color::Yellow );
     void draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates()) const; // draw is abstract, RenderStates needed in definition
+    const sf::Vector2f getMiddle();
 private:
     sf::Vertex vertices[4];
     float thickness;

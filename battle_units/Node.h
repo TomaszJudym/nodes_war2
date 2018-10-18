@@ -5,16 +5,15 @@
 #ifndef ABSEIL_NODE_H
 #define ABSEIL_NODE_H
 
-#include "../Tools/DebugUtilities.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <locale>
 #include <codecvt>
 
-class Node {
+class Node : public sf::Drawable {
 protected:
 
-    std::wstring             name;
+    std::wstring            name;
     static sf::Font         font;
     sf::Texture             image;
     sf::Sprite              sprite;
@@ -23,23 +22,22 @@ protected:
     void                    setTextPosition( float _x, float _y );
     void                    initSprite();
     void                    initText();
-
-    sf::RenderWindow& renderWindow;
 public:
-    explicit Node( sf::Vector2f& _pos, sf::RenderWindow& _rw );
-    Node( const Node& _cpyNode );
-    void setPosition( const sf::Vector2f& _pos );
-    void draw();
-    const sf::Vector2f& getPosition();
-
-    inline void setName( const std::wstring& _name ) { name = _name; }
+    explicit                Node(const sf::Vector2f& _pos);
+                            Node( const Node& _cpyNode );
+    void                    setPosition( const sf::Vector2f& _pos );
+    void                    draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const override;
+    const sf::Vector2f&     getPosition();
+    const sf::Sprite&       getSprite();
+    const std::wstring&     getName();
+    inline void             setName( const std::wstring& _name ) { name = _name; }
  //   inline void setName( const std::string& _name ) {
  //       std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
  //       name = converter.from_bytes( _name.c_str() );
  //   }
 
-    virtual void makeConnection( Node* _target ) = 0;
-    virtual ~Node() = default;
+    virtual void             makeConnection( Node* _target ) = 0;
+    virtual                  ~Node() = default;
 };
 
 

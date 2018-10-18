@@ -12,10 +12,11 @@
 #include <chrono>
 #include <thread>
 
-class LoadRing {
+class LoadRing
+{
 public:
     LoadRing( sf::RenderWindow& _window, sf::Color _color = sf::Color::Red );
-    void setPosition( sf::Vector2f& );
+    void setPosition( const sf::Vector2f& );
     void setPosition( float, float );
     void load();
     void draw();

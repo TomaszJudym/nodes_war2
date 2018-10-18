@@ -22,6 +22,26 @@ ThicknessLine::ThicknessLine( const sf::Vector2f& _point1, const sf::Vector2f& _
 
     for( auto& vert : vertices ) vert.color = color;
 }
+
+const sf::Vector2f ThicknessLine::getMiddle()
+{
+    // just pitagoras divided by 2 to get middle of path we need to travel
+    double length = sqrt(pow((vertices[1].position.x - vertices[0].position.x), 2) +
+                    pow((vertices[1].position.y - vertices[0].position.y), 2)) / 2;
+    // now gonna remind ourselves what direction was it
+    sf::Vector2f direction = vertices[1].position - vertices[0].position;
+
+    // normalize it to size 1
+    sf::Vector2f unitDirection =
+            direction / static_cast<float>(sqrt(direction.x*direction.x + direction.y*direction.y));
+
+    // offset in correct normalized direction
+    sf::Vector2f offset = 2.5f * unitDirection;
+    // substracting perpendiculat offset is for getting middle of our thick line ( its const 5.f )
+
+    return (vertices[1].position + vertices[0].position)/2.f;
+}
+
 void ThicknessLine::draw(sf::RenderTarget& _rw, sf::RenderStates _states) const
 {
     _rw.draw(vertices, 4, sf::Quads);

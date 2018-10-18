@@ -4,10 +4,9 @@
 
 #include "Terminal.h"
 
-Terminal::Terminal( sf::RenderWindow& _window ) :
+Terminal::Terminal() :
 terminalCharacterSize(16),
 position(20, 20),
-renderWindowPtr( _window ),
 //terminalFontDir( "font/batmfa__.ttf" )
 terminalFontDir( "font/Osaka.ttc" )
 {
@@ -23,9 +22,9 @@ terminalFontDir( "font/Osaka.ttc" )
     text.setPosition( position );
 }
 
-void Terminal::draw()
+void Terminal::draw(sf::RenderTarget& _rw, sf::RenderStates) const
 {
-    renderWindowPtr.draw( text );
+    _rw.draw(text);
 }
 
 void Terminal::update( const char _input_char )
@@ -61,7 +60,7 @@ void Terminal::update( const std::string& _str )
     }
 }
 
-void Terminal::loadInitLog( std::string& _logFileDir )
+void Terminal::loadInitLog( std::string& _logFileDir, sf::RenderWindow& _windowRef )
 {
     std::fstream fs( _logFileDir );
     if( !fs.good() )
@@ -75,13 +74,15 @@ void Terminal::loadInitLog( std::string& _logFileDir )
 
     while( fs.get(c) && !exit )
     {
+        // if more than 5 lines, scrolling up
         if( c == '\n' && std::count( ss.begin(), ss.end(), '\n' ) > 5 )
         {
-            ss.erase( 0, ss.find('\n')+1 );
-            text.setString( ss );
-            renderWindowPtr.clear(sf::Color::Black);
-            renderWindowPtr.draw(text);
-            renderWindowPtr.display();
+            ss.erase( 0, ss.find('\n')+1 ); // erase elements from first line
+            text.setString( ss );           // set updated string without first line to display
+            //_windowRef.clear(sf::Color::Black);
+
+            _windowRef.draw(text);
+            _windowRef.display();
         }
         ++terminalCharacterSize;
         ss += c;
@@ -92,9 +93,9 @@ void Terminal::loadInitLog( std::string& _logFileDir )
             exit = true;
         }
 
-        renderWindowPtr.clear(sf::Color::Black);
-        renderWindowPtr.draw( text );
-        renderWindowPtr.display();
+        //_windowRef.clear(sf::Color::Black);
+        _windowRef.draw( text );
+        _windowRef.display();
     }
 
     if( exit )
@@ -106,9 +107,9 @@ void Terminal::loadInitLog( std::string& _logFileDir )
         ss = getLastNLines(5, ss.end());
         text.setString( ss );
 
-        renderWindowPtr.clear(sf::Color::Black);
-        renderWindowPtr.draw( text );
-        renderWindowPtr.display();
+        _windowRef.clear(sf::Color::Black);
+        _windowRef.draw( text );
+        _windowRef.display();
     }
 
     fs.close();
@@ -133,12 +134,12 @@ std::string Terminal::getLastNLines( unsigned int _nLines, std::string::const_it
     return std::string( beginningIter, _end );
 }
 
-std::string Terminal::catchCommand()
+std::string Terminal::catchCommand(sf::RenderWindow& _windowRef)
 {
     update( (char)'\n' );
     text.setString( ss );
-    renderWindowPtr.draw( text );
-    renderWindowPtr.display();
+    _windowRef.draw( text );
+    _windowRef.display();
     std::string commandToExecute;
     if( ss.size() > 30 )
     {

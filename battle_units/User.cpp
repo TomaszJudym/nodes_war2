@@ -18,11 +18,11 @@ const std::map< int, std::wstring > User::names = []
 
 size_t User::userCount = 0;
 
-std::shared_ptr<User> User::spawnUser( sf::Vector2f& _pos, sf::RenderWindow& _rw  )
+std::shared_ptr<User> User::spawnUser( const sf::Vector2f& _pos )
 {
     std::cout << "spawing user: " << _pos.x << " " << _pos.y << std::endl;
     if (userCount <= 3)
-        return std::shared_ptr<User>(new User(_pos, _rw));
+        return std::shared_ptr<User>(new User(_pos));
     else
     {
         std::cerr << "cannot create User unit => Users limit reached" << std::endl;
@@ -30,11 +30,16 @@ std::shared_ptr<User> User::spawnUser( sf::Vector2f& _pos, sf::RenderWindow& _rw
     }
 }
 
-User::User( sf::Vector2f& _pos, sf::RenderWindow& _rw ) :
-Node( _pos, _rw ),
+std::shared_ptr<User> User::spawnUser( float _x, float _y )
+{
+    return User::spawnUser( sf::Vector2f(_x, _y) );
+}
+
+User::User( const sf::Vector2f& _pos ) :
+Node( _pos ),
 connectedServerPtr(nullptr)
 {
-    image.loadFromFile( "img/camputer480x480.jpg" );
+    image.loadFromFile( "img/computer630x630.jpg" );
     initSprite();
     setName( names.at(userCount) );
     initText();

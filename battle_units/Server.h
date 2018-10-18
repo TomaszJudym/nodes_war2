@@ -17,7 +17,7 @@ class Server : public Node
 {
     std::vector< User* > connectedUsersVector;
 public:
-    Server( const std::string& _name, sf::Vector2f& _pos, sf::RenderWindow& _rw );
+    Server( const std::string& _name, const sf::Vector2f& _pos );
     void makeConnection( Node* _target ) override;
 };
 

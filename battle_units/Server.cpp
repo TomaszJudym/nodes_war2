@@ -4,8 +4,8 @@
 
 #include "Server.h"
 
-Server::Server( const std::string& _name, sf::Vector2f& _pos, sf::RenderWindow& _rw ) :
-Node( _pos, _rw ),
+Server::Server( const std::string& _name, const sf::Vector2f& _pos ) :
+Node( _pos ),
 connectedUsersVector()
 {
     image.loadFromFile( "img/server800x800.jpg" );

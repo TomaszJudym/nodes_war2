@@ -14,33 +14,32 @@
 #include <thread>
 #include <map>
 
-class Terminal
+class Terminal : public sf::Drawable
 {
 
 public:
-    explicit Terminal( sf::RenderWindow& );
-    void draw();
-    void update( const char );
-    bool update( short );
-    void update( const std::string& _str );
-    void loadInitLog( std::string& _logFileDir );
-    void clear();
-    std::string catchCommand();
+    explicit                             Terminal();
+    void                                 draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const override;
+    void                                 update( const char );
+    bool                                 update( short );
+    void                                 update( const std::string& _str );
+    void                                 loadInitLog( std::string& _logFileDir, sf::RenderWindow& _renderWin );
+    void                                 clear();
+    std::string                          catchCommand(sf::RenderWindow& _windowRef);
 
 
 private:
-    typedef std::chrono::milliseconds mili;
+    typedef std::chrono::milliseconds   mili;
 
-    sf::Vector2f position;
-    short terminalCharacterSize;
-    std::string terminalFontDir;
-    sf::Font terminalFont;
-    sf::Text text;
-    std::string ss;
-    sf::RenderWindow& renderWindowPtr;
+    sf::Vector2f                        position;
+    short                               terminalCharacterSize;
+    std::string                         terminalFontDir;
+    sf::Font                            terminalFont;
+    sf::Text                            text;
+    std::string                         ss;
 
 private:
-    std::string getLastNLines( unsigned int _nLines, std::string::const_iterator _str );
+    std::string                         getLastNLines( unsigned int _nLines, std::string::const_iterator _str );
 };
 
 

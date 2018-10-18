@@ -2,6 +2,7 @@
 // Created by Ackan on 11.09.2018.
 //
 
+#include <SFML/System/Sleep.hpp>
 #include "LoadRing.h"
 
 LoadRing::LoadRing( sf::RenderWindow& _window, sf::Color _color ) :
@@ -35,10 +36,10 @@ void LoadRing::draw()
     }
 }
 
-void LoadRing::setPosition( sf::Vector2f& _newPos )
+void LoadRing::setPosition( const sf::Vector2f& _newPos )
 {
     for( auto& x : triangles )
-        x.setPosition( _newPos );
+        setPosition(_newPos.x, _newPos.y);
 }
 
 void LoadRing::setPosition( float _x, float _y )
@@ -49,12 +50,16 @@ void LoadRing::setPosition( float _x, float _y )
 
 void LoadRing::load()
 {
+    window.setActive(false);
     for( int i=0; i<8; ++i )
     {
         draw();
         ++activeTriangles;
-        std::this_thread::sleep_for( std::chrono::milliseconds(250) );
+        sf::sleep(sf::milliseconds(400));
+        std::cout << "triangle " << i << std::endl;
         window.display();
     }
     fullyLoaded = true;
+
+    std::cout << "death" << std::endl;
 }
