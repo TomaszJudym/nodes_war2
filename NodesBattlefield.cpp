@@ -31,8 +31,9 @@ bool NodesBattlefield::initLoad()
     if(!terminal) initPassed = false;
 
     users.emplace_back( User::spawnUser(400.f, 350.f));
-    users.emplace_back( User::spawnUser(600.f, 500.f));
-    users.emplace_back( User::spawnUser(800.f, 650.f));
+    users.emplace_back( User::spawnUser(800.f, 500.f));
+    users.emplace_back( User::spawnUser(1000.f, 650.f));
+    users.emplace_back( User::spawnUser(150.f, 700.f));
 
     servers.emplace_back( "DANK_3", sf::Vector2f(150, 300));
 
@@ -130,6 +131,7 @@ void NodesBattlefield::handlePlayerInputMouse( sf::Mouse::Button _button, bool _
         {
             if( choosedUnit && choosedUnit != unitManipulator.unitToMakeConnectionFrom)   // we' ve chosen unit to make connection to
             {
+                std::cout << "< choosed: " << choosedUnit << " | " << unitManipulator.unitToMakeConnectionFrom << std::endl;
                 unitManipulator.addConnection( unitManipulator.unitToMakeConnectionFrom, choosedUnit );
             }
             // otherwise we clicked in same unit we've made connection from or clicked in nothing,
