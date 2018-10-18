@@ -21,12 +21,9 @@ UnitManip& UnitManip::getInstance()
 ThicknessLine* UnitManip::connect2Units( Node* _connecter, Node* _connected, sf::Color _color )
 {
     // for testing purpuses, line is leaking, shall b auto as object member and deleted with destruction
-    std::cout << "connecter< " << _connecter->getPosition().x << " | " << _connecter->getPosition().y <<
-    "\nconnected: " << _connected->getPosition().x << " | " << _connected->getPosition().y << std::endl;
 
     sf::Vector2f dirVecNorm = _connected->getPosition() - _connecter->getPosition(); // from connecter to connected
 
-    std::cout << "dirVecNorm< " << dirVecNorm.x << " " << dirVecNorm.y << " >" << std::endl;
     double length = sqrt(pow(dirVecNorm.x, 2) + pow(dirVecNorm.y, 2));
 
     dirVecNorm = sf::Vector2f( 
@@ -46,8 +43,6 @@ ThicknessLine* UnitManip::connect2Units( Node* _connecter, Node* _connected, sf:
 
 
     auto* connector = new ThicknessLine( connecterPos, connectedPos, _color );
-    std::cout << "conn_coods:< " << connecterPos.x << " | " << connectedPos.y << " || " << connecterPos.x << " | " <<
-    connectedPos.y << " >" << std::endl;
     return connector;
 }
 
@@ -56,9 +51,12 @@ void UnitManip::addConnection(Node* _connecter, Node* _connected)
     std::wstringstream ss;
     ss << _connecter->getName() << "_to_" << _connected->getName();
     std::wstring connectionName = ss.str();
-    std::wcout << "Inserting to map: < " << connectionName << " >" << std::endl;
     connectionsMap[connectionName] = connect2Units(_connecter, _connected);
-    std::cout << "after insertion: " << connectionsMap.size() << std::endl;
+    std::cout << "\n--------------------------\n";
+    int i=0;
+    for( const auto& x : connectionsMap )
+        std::wcout << ++i << " " << x.first << std::endl;
+    std::cout << "\n--------------------------\n";
 }
 
 const std::map< std::wstring, ThicknessLine* >* UnitManip::getConnectionsMap()

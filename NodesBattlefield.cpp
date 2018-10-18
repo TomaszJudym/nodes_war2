@@ -32,8 +32,9 @@ bool NodesBattlefield::initLoad()
 
     users.emplace_back( User::spawnUser(400.f, 350.f));
     users.emplace_back( User::spawnUser(800.f, 500.f));
-    users.emplace_back( User::spawnUser(1000.f, 650.f));
+    users.emplace_back( User::spawnUser(350.f, 650.f));
     users.emplace_back( User::spawnUser(150.f, 700.f));
+    users.emplace_back( User::spawnUser(500.f, 860.f));
 
     servers.emplace_back( "DANK_3", sf::Vector2f(150, 300));
 
@@ -112,13 +113,11 @@ void NodesBattlefield::handlePlayerInputMouse( sf::Mouse::Button _button, bool _
             // TODO refactor method for better searching through game objects to click
             if( foundUser != users.end() )
             {
-                std::cout << "user_clicked" << std::endl;
                 choosedUnit = foundUser->get();
             }
         } else
         {
             choosedUnit = &*foundServer; // address of server object from_under iterator
-            std::cout << "server_clicked" << std::endl;
         }
 
         if (choosing_state == not_choosing && choosedUnit) // server or user has been found as marked by mouse cursor

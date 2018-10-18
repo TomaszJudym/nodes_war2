@@ -14,7 +14,7 @@
 
 enum JAP_NAMES
 {
-    WOLF,
+    WOLF=0,
     IDIOT,
     COUNTERPUNCH,
     DELTA,
