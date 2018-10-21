@@ -15,19 +15,18 @@ protected:
 
     std::wstring            name;
     static sf::Font         font;
-    sf::Texture             image;
     sf::Sprite              sprite;
     sf::Text                displayedName;
     sf::Vector2f            position;
     void                    setTextPosition( float _x, float _y );
-    void                    initSprite();
+    void                    initSprite(const sf::Texture& _texture);
     void                    initText();
 public:
     explicit                Node(const sf::Vector2f& _pos);
                             Node( const Node& _cpyNode );
     void                    setPosition( const sf::Vector2f& _pos );
     void                    draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const override;
-    const sf::Vector2f&     getPosition();
+    const sf::Vector2f&     getPosition() const;
     const sf::Sprite&       getSprite();
     const std::wstring&     getName();
     inline void             setName( const std::wstring& _name ) { name = _name; }

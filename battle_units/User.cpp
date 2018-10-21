@@ -4,6 +4,8 @@
 
 #include "User.h"
 
+sf::Texture User::image = sf::Texture();
+
 const std::map< int, std::wstring > User::names = []
 {
     std::map< int, std::wstring > retMap;
@@ -41,8 +43,7 @@ User::User( const sf::Vector2f& _pos ) :
 Node( _pos ),
 connectedServerPtr(nullptr)
 {
-    image.loadFromFile( "img/computer630x630.jpg" );
-    initSprite();
+    initSprite(User::image);
     setName( names.at(userCount) );
     initText();
     userCount++;
@@ -59,6 +60,11 @@ void User::makeConnection( Node* _target )
     {
         std::wcerr << "ERROR server already assigned to " << name << std::endl;
     }
+}
+
+sf::Texture& User::getTexture()
+{
+    return image;
 }
 
 User::~User()

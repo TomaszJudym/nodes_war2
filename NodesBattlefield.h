@@ -28,7 +28,16 @@ class NodesBattlefield
 
     void                                      handlePlayerInputMouse( sf::Mouse::Button _button, bool _pressed );
     void                                      handlePlayerInputKeyboard( sf::Keyboard::Key _key, bool pressed );
+    void                                      handlePlayerMouseMove();
     void                                      handleTerminal(sf::Uint32 _keyCode);
+
+    void                                      handleUnitsAction(Node* _unit, bool _pressed);
+    void                                      handleUnitsMove(Node* _unit, bool _pressed);
+    inline void                               backToChoosingState();
+
+    Node*                                     containsUnit(const sf::Vector2f& _pos);
+
+    const sf::Vector2f                        getMousePos();
 
     std::vector<Server> servers;
     std::vector< std::shared_ptr<User> >      users;
@@ -49,11 +58,12 @@ public:
     void operator=(NodesBattlefield const&)    = delete;    // them private - better compiler errors
                                                          // in attempt to copy object
 private:
-    enum CHOOSING_STATE : short
+    enum MANIPULATION_STATE : short
     {
-        not_choosing = 0,
-        choosing
-    } choosing_state;
+        none = 0
+      , choosing
+      , moving
+    } manip_state;
 };
 
 

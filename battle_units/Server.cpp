@@ -4,18 +4,24 @@
 
 #include "Server.h"
 
+sf::Texture Server::image = sf::Texture();
+
 Server::Server( const std::string& _name, const sf::Vector2f& _pos ) :
 Node( _pos ),
 connectedUsersVector()
 {
-    image.loadFromFile( "img/server800x800.jpg" );
     setName( L"DANK_3" );
-    initSprite();
+    initSprite(Server::image);
     initText();
 }
 
 void Server::makeConnection( Node* _target )
 {
     connectedUsersVector.push_back( reinterpret_cast<User*>(_target) );
+}
+
+sf::Texture& Server::getTexture()
+{
+    return image;
 }
 

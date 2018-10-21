@@ -16,9 +16,11 @@ class User;
 class Server : public Node
 {
     std::vector< User* > connectedUsersVector;
+    static sf::Texture image;
 public:
     Server( const std::string& _name, const sf::Vector2f& _pos );
     void makeConnection( Node* _target ) override;
+    static sf::Texture& getTexture();
 };
 
 

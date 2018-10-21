@@ -28,6 +28,7 @@ class User : public Node
 {
     static const std::map< int, std::wstring > names;
     static size_t userCount;
+    static sf::Texture image;
 
     User( const sf::Vector2f& _pos );
 
@@ -39,6 +40,7 @@ public:
 
     User(const User&) = default;
     User(User&&) = default;
+    static sf::Texture& getTexture();
     void makeConnection( Node* _target ) override;
     ~User() override;
 };

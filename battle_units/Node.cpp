@@ -26,12 +26,12 @@ void Node::initText()
     displayedName.setCharacterSize( 16 );
     displayedName.setString( name );
     displayedName.setOrigin( displayedName.getGlobalBounds().width/2, displayedName.getGlobalBounds().height/2 );
-    setTextPosition( position.x, position.y-(sprite.getGlobalBounds().height * 0.75f) );
+    setTextPosition( position.x, position.y-sprite.getGlobalBounds().height * 0.75f );
 }
 
-void Node::initSprite()
+void Node::initSprite(const sf::Texture& _texture)
 {
-    sprite.setTexture( image );
+    sprite.setTexture( _texture );
     sprite.setOrigin( sprite.getGlobalBounds().width/2, sprite.getGlobalBounds().height/2 );
     sprite.setScale( 0.15f, 0.15f );
     sprite.setPosition( position );
@@ -44,8 +44,9 @@ const sf::Sprite& Node::getSprite()
 
 void Node::setPosition( const sf::Vector2f& _pos )
 {
-    sprite.setPosition( _pos );
-    setTextPosition( position.x, position.y-image.getSize().y );
+    position = _pos;
+    sprite.setPosition( position );
+    setTextPosition( position.x, position.y-sprite.getGlobalBounds().height * 0.75f );
 }
 
 void Node::draw(sf::RenderTarget& _rw, sf::RenderStates _rs) const
@@ -64,7 +65,7 @@ const std::wstring& Node::getName()
     return name;
 }
 
-const sf::Vector2f& Node::getPosition()
+const sf::Vector2f& Node::getPosition() const
 {
     return position;
 }

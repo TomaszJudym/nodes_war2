@@ -9,7 +9,7 @@ using std::make_unique;
 
 NodesBattlefield::NodesBattlefield()
 : window(sf::VideoMode(1400, 1050), "nodes_war", sf::Style::Close | sf::Style::Titlebar)
-, choosing_state(not_choosing)
+, manip_state(none)
 , unitManipulator(UnitManip::getInstance())
 {
     initLoad();
@@ -19,10 +19,13 @@ bool NodesBattlefield::initLoad()
 {
     bool initPassed = true;
 
-    window.setKeyRepeatEnabled(false);
+    window.setKeyRepeatEnabled(false); // true for moving units in real time
     window.setFramerateLimit(60);
     window.setActive(false); // deactivating OpenGL context, because
                              // it can run only in 1 thread at the same time
+
+    User::getTexture().loadFromFile("img/computer630x630.jpg"); // image of all User sprites
+    Server::getTexture().loadFromFile("img/server800x800.jpg");
 
     servers.reserve(10);
     users.reserve(10);
@@ -38,7 +41,7 @@ bool NodesBattlefield::initLoad()
 
     servers.emplace_back( "DANK_3", sf::Vector2f(150, 300));
 
-    unitManipulator.addConnection(&servers[0], users[0].get());
+    std::cout << "serv: " << sizeof(Server) << " usr: " << sizeof(User) << std::endl;
 
     return initPassed;
 }
@@ -88,64 +91,138 @@ void NodesBattlefield::processEvents()
                 handlePlayerInputMouse(event.mouseButton.button, false);
                 break;
 
+            case sf::Event::MouseButtonPressed:
+                handlePlayerInputMouse(event.mouseButton.button, true);
+                break;
+
+            case sf::Event::MouseMoved:
+                handlePlayerMouseMove();
+                break;
+
             default:
                 break;
         }
     }
 }
 
+inline void NodesBattlefield::backToChoosingState()
+{
+    delete unitManipulator.currentlyCreatedLine;
+    unitManipulator.currentlyCreatedLine = nullptr;
+    unitManipulator.unitToManip = nullptr;
+    manip_state = none;
+}
+
+Node* NodesBattlefield::containsUnit(const sf::Vector2f& _pos)
+{
+    Node* chosenUnit = nullptr;
+    auto foundServer = std::find_if( servers.begin(), servers.end(), [&_pos](Server& _server){ // address of object from_under iterator
+        return _server.getSprite().getGlobalBounds().contains(_pos);
+    } );
+
+    if (foundServer == servers.end()) // no server is pointed to by cursor, so maybe user has been clicked
+    {
+        auto foundUser = std::find_if(users.begin(), users.end(), [&_pos](std::shared_ptr<User> _userPtr){
+            return _userPtr->getSprite().getGlobalBounds().contains(_pos);
+        });
+        // TODO refactor method for better searching through game objects to click
+        if( foundUser != users.end() )
+        {
+            chosenUnit = foundUser->get();
+        }
+    } else
+    {
+        chosenUnit = &*foundServer; // address of server object from_under iterator
+    }
+    return chosenUnit;
+}
+
 void NodesBattlefield::handlePlayerInputMouse( sf::Mouse::Button _button, bool _pressed )
 {
-    sf::Vector2f mousePos = sf::Vector2f( sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y );
-    Node* choosedUnit = nullptr;
+    Node* clickedUnit = containsUnit(getMousePos());
 
+    if ( _button == sf::Mouse::Right )
+    {
+        if(clickedUnit)
+            handleUnitsAction(clickedUnit, _pressed);
+    }
+    else if ( _button == sf::Mouse::Left )
+    {
+            handleUnitsMove(clickedUnit, _pressed);
+    }
+
+    if ( !clickedUnit )
+    {
+        if ( unitManipulator.currentlyCreatedLine )
+        {
+            backToChoosingState();
+        }
+    }
+
+}
+
+void NodesBattlefield::handleUnitsAction(Node* _unit, bool _pressed)
+{
     if ( !_pressed )
     {
-        auto foundServer = std::find_if( servers.begin(), servers.end(), [&mousePos](Server& _server){ // address of object from_under iterator
-            return _server.getSprite().getGlobalBounds().contains(mousePos);
-        } );
-
-        if (foundServer == servers.end()) // no server is pointed to by cursor, so maybe user has been clicked
+        if (manip_state == none ) // server or user has been found as marked by mouse cursor
         {
-            auto foundUser = std::find_if(users.begin(), users.end(), [&mousePos](std::shared_ptr<User> _userPtr){
-                return _userPtr->getSprite().getGlobalBounds().contains(mousePos);
-            });
-            // TODO refactor method for better searching through game objects to click
-            if( foundUser != users.end() )
-            {
-                choosedUnit = foundUser->get();
-            }
-        } else
-        {
-            choosedUnit = &*foundServer; // address of server object from_under iterator
+            manip_state = choosing;
+            unitManipulator.currentlyCreatedLine = new ThicknessLine(_unit->getPosition()
+                    , getMousePos());
+            unitManipulator.unitToManip = _unit;
         }
-
-        if (choosing_state == not_choosing && choosedUnit) // server or user has been found as marked by mouse cursor
+        else if (manip_state == choosing)
         {
-                choosing_state = choosing;
-                unitManipulator.currentlyCreatedLine = new ThicknessLine(choosedUnit->getPosition(), mousePos);
-                unitManipulator.unitToMakeConnectionFrom = choosedUnit;
-        }
-        else if (choosing_state == choosing)
-        {
-            if( choosedUnit && choosedUnit != unitManipulator.unitToMakeConnectionFrom)   // we' ve chosen unit to make connection to
+            if(_unit != unitManipulator.unitToManip)   // we' ve chosen unit to make connection to
             {
-                std::cout << "< choosed: " << choosedUnit << " | " << unitManipulator.unitToMakeConnectionFrom << std::endl;
-                unitManipulator.addConnection( unitManipulator.unitToMakeConnectionFrom, choosedUnit );
+                unitManipulator.addConnection( unitManipulator.unitToManip, _unit );
             }
-            // otherwise we clicked in same unit we've made connection from or clicked in nothing,
-            // so procedure of making connection is broken
-            delete unitManipulator.currentlyCreatedLine;
-            unitManipulator.currentlyCreatedLine = nullptr;
-            unitManipulator.unitToMakeConnectionFrom = nullptr;
-            choosing_state = not_choosing;
+            // transition has been added to map, no need to draw transition pointed
+            // to mouse cursor anymore
+            backToChoosingState();
         }
     }
 }
 
-void NodesBattlefield::handlePlayerInputKeyboard( sf::Keyboard::Key _key, bool pressed )
+void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
+{
+    if( _pressed )
+    {
+        if( manip_state == none && _unit )
+        {
+            manip_state = moving;
+            unitManipulator.unitToManip = _unit;
+        }
+        else if( manip_state == moving )
+        {
+            unitManipulator.unitToManip->setPosition(getMousePos());
+            unitManipulator.updateTransitions(_unit);
+        }
+    }
+    else if( !_pressed )
+    {
+        if( manip_state == moving )
+        {
+            manip_state = none;
+            unitManipulator.unitToManip->setPosition(getMousePos());
+            unitManipulator.unitToManip = nullptr;
+        }
+    }
+}
+
+void NodesBattlefield::handlePlayerInputKeyboard( sf::Keyboard::Key _key, bool _pressed )
 {
 
+}
+
+void NodesBattlefield::handlePlayerMouseMove()
+{
+    if( manip_state == moving )
+    {
+        unitManipulator.unitToManip->setPosition(getMousePos());
+        unitManipulator.updateTransitions(unitManipulator.unitToManip);
+    }
 }
 
 void NodesBattlefield::handleTerminal(sf::Uint32 _key)
@@ -170,8 +247,8 @@ void NodesBattlefield::update()
     if(unitManipulator.currentlyCreatedLine)
     {
         delete unitManipulator.currentlyCreatedLine;
-        unitManipulator.currentlyCreatedLine = new ThicknessLine(unitManipulator.unitToMakeConnectionFrom->getPosition()
-                                             , sf::Vector2f( sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y));
+        unitManipulator.currentlyCreatedLine = new ThicknessLine(unitManipulator.unitToManip->getPosition()
+                                             , getMousePos());
     }
 }
 
@@ -194,4 +271,9 @@ void NodesBattlefield::render()
         unitManipulator.currentlyCreatedLine->draw(window);
 
     window.display();
+}
+
+const sf::Vector2f NodesBattlefield::getMousePos()
+{
+    return sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
 }
