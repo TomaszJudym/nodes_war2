@@ -6,6 +6,8 @@
 
 using std::make_shared;
 using std::make_unique;
+using std::cout;
+using std::endl;
 
 NodesBattlefield::NodesBattlefield()
 : window(sf::VideoMode(1400, 1050), "nodes_war", sf::Style::Close | sf::Style::Titlebar)
@@ -107,9 +109,9 @@ void NodesBattlefield::processEvents()
 
 inline void NodesBattlefield::backToChoosingState()
 {
-    delete unitManipulator.currentlyCreatedLine;
-    unitManipulator.currentlyCreatedLine = nullptr;
-    unitManipulator.unitToManip = nullptr;
+    delete unitManipulator.memorisUnit->currentlyCreatedLine;
+    unitManipulator.memorisUnit->currentlyCreatedLine = nullptr;
+    unitManipulator.memorisUnit->unitToManip = nullptr;
     manip_state = none;
 }
 
@@ -153,7 +155,7 @@ void NodesBattlefield::handlePlayerInputMouse( sf::Mouse::Button _button, bool _
 
     if ( !clickedUnit )
     {
-        if ( unitManipulator.currentlyCreatedLine )
+        if ( unitManipulator.memorisUnit->currentlyCreatedLine )
         {
             backToChoosingState();
         }
@@ -168,15 +170,15 @@ void NodesBattlefield::handleUnitsAction(Node* _unit, bool _pressed)
         if (manip_state == none ) // server or user has been found as marked by mouse cursor
         {
             manip_state = choosing;
-            unitManipulator.currentlyCreatedLine = new ThicknessLine(_unit->getPosition()
+            unitManipulator.memorisUnit->currentlyCreatedLine = new ThicknessLine(_unit->getPosition()
                     , getMousePos());
-            unitManipulator.unitToManip = _unit;
+            unitManipulator.memorisUnit->unitToManip = _unit;
         }
         else if (manip_state == choosing)
         {
-            if(_unit != unitManipulator.unitToManip)   // we' ve chosen unit to make connection to
+            if(_unit != unitManipulator.memorisUnit->unitToManip)   // we' ve chosen unit to make connection to
             {
-                unitManipulator.addConnection( unitManipulator.unitToManip, _unit );
+                unitManipulator.addConnection( unitManipulator.memorisUnit->unitToManip, _unit );
             }
             // transition has been added to map, no need to draw transition pointed
             // to mouse cursor anymore
@@ -192,11 +194,11 @@ void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
         if( manip_state == none && _unit )
         {
             manip_state = moving;
-            unitManipulator.unitToManip = _unit;
+            unitManipulator.memorisUnit->unitToManip = _unit;
         }
         else if( manip_state == moving )
         {
-            unitManipulator.unitToManip->setPosition(getMousePos());
+            unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos());
             unitManipulator.updateTransitions(_unit);
         }
     }
@@ -204,9 +206,13 @@ void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
     {
         if( manip_state == moving )
         {
-            manip_state = none;
-            unitManipulator.unitToManip->setPosition(getMousePos());
-            unitManipulator.unitToManip = nullptr;
+            if( unitManipulator.memorisUnit->unitWasMoved )
+            {
+                unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos()); // last setting position of controlled unit
+                unitManipulator.memorisUnit->unitWasMoved = false;
+            }
+            manip_state = none;                                         // we've stopped moving
+            unitManipulator.memorisUnit->unitToManip = nullptr;                      // we're no longer manipulating this unit
         }
     }
 }
@@ -220,8 +226,9 @@ void NodesBattlefield::handlePlayerMouseMove()
 {
     if( manip_state == moving )
     {
-        unitManipulator.unitToManip->setPosition(getMousePos());
-        unitManipulator.updateTransitions(unitManipulator.unitToManip);
+        unitManipulator.memorisUnit->unitWasMoved = true;
+        unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos());
+        unitManipulator.updateTransitions(unitManipulator.memorisUnit->unitToManip);
     }
 }
 
@@ -244,10 +251,10 @@ void NodesBattlefield::handleTerminal(sf::Uint32 _key)
 
 void NodesBattlefield::update()
 {
-    if(unitManipulator.currentlyCreatedLine)
+    if(unitManipulator.memorisUnit->currentlyCreatedLine)
     {
-        delete unitManipulator.currentlyCreatedLine;
-        unitManipulator.currentlyCreatedLine = new ThicknessLine(unitManipulator.unitToManip->getPosition()
+        delete unitManipulator.memorisUnit->currentlyCreatedLine;
+        unitManipulator.memorisUnit->currentlyCreatedLine = new ThicknessLine(unitManipulator.memorisUnit->unitToManip->getPosition()
                                              , getMousePos());
     }
 }
@@ -267,8 +274,8 @@ void NodesBattlefield::render()
     for( const auto& x : *unitManipulator.getConnectionsMap() )
         x.second->draw(window);
 
-    if( unitManipulator.currentlyCreatedLine != nullptr )
-        unitManipulator.currentlyCreatedLine->draw(window);
+    if( unitManipulator.memorisUnit->currentlyCreatedLine != nullptr )
+        unitManipulator.memorisUnit->currentlyCreatedLine->draw(window);
 
     window.display();
 }
