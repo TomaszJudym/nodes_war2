@@ -51,16 +51,17 @@ struct UnitManip
 {
 private:
     std::map< ConnectionData*, ThicknessLine* > connectionsMap;
-
+    static bool                  mouseIsInScreenBorders(const sf::RenderWindow& _window);
+    static sf::Vector2f          coordinatePositionToWindow(const sf::Vector2f& _pos, const sf::RenderWindow& _window);
 public:
     static ThicknessLine*        connect2Units( Node* _connecter, Node* _connected, sf::Color _color = sf::Color(118, 56, 100) );
     static sf::Vector2f          getDirVec(const sf::Vector2f&, const sf::Vector2f&);
+    sf::Vector2f                 selectNewUnitPosition(const sf::RenderWindow& _window);
     std::unique_ptr<MemorisUnit> memorisUnit;
 
     void                        addConnection(Node* _connecter, Node* _connected);
     const                       std::map< ConnectionData*, ThicknessLine* >* getConnectionsMap();
     void                        updateTransitions(Node* _changedNode);
-
 
     static UnitManip&           getInstance();
     UnitManip&                  operator=(const UnitManip&) = delete;

@@ -191,25 +191,28 @@ void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
 {
     if ( _pressed )
     {
-        if( manip_state == none && _unit ) // we have chosen units to manipulate
+        if ( manip_state == none && _unit ) // we have chosen units to manipulate
         {
             manip_state = moving;
             unitManipulator.memorisUnit->unitToManip = _unit;
             unitManipulator.memorisUnit->movingUnitOffset = UnitManip::getDirVec(_unit->getPosition(), getMousePos());
         }
-        else if( manip_state == moving )
+        else if ( manip_state == moving )
         {
-            unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos());
+            sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(window);
+
+            unitManipulator.memorisUnit->unitToManip->setPosition(newPos);
             unitManipulator.updateTransitions(_unit);
         }
     }
     else if ( !_pressed )
     {
-        if( manip_state == moving )
+        if ( manip_state == moving )
         {
-            if( unitManipulator.memorisUnit->unitWasMoved )
+            if ( unitManipulator.memorisUnit->unitWasMoved )
             {
-                unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos()+unitManipulator.memorisUnit->movingUnitOffset); // last setting position of controlled unit
+                sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(window);
+                unitManipulator.memorisUnit->unitToManip->setPosition(newPos);
                 unitManipulator.memorisUnit->unitWasMoved = false;
             }
             manip_state = none;                                                      // we've stopped moving
@@ -226,10 +229,12 @@ void NodesBattlefield::handlePlayerInputKeyboard( sf::Keyboard::Key _key, bool _
 
 void NodesBattlefield::handlePlayerMouseMove()
 {
-    if( manip_state == moving )
+    if ( manip_state == moving )
     {
+        sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(window);
+
+        unitManipulator.memorisUnit->unitToManip->setPosition(newPos);
         unitManipulator.memorisUnit->unitWasMoved = true;
-        unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos() + unitManipulator.memorisUnit->movingUnitOffset);
         unitManipulator.updateTransitions(unitManipulator.memorisUnit->unitToManip);
     }
 }
@@ -240,7 +245,7 @@ void NodesBattlefield::handleTerminal(sf::Uint32 _key)
     {
         if (_key == '\b') // backspace
             terminal->update((short)-1);
-        else if( _key == sf::Keyboard::Return )
+        else if ( _key == sf::Keyboard::Return )
         {
             // TODO make new line AND loading command if any present
             //terminal.update( (char)'\n' );

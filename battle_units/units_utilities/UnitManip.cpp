@@ -15,6 +15,44 @@ UnitManip& UnitManip::getInstance()
     return instance;
 }
 
+bool UnitManip::mouseIsInScreenBorders(const sf::RenderWindow& _window)
+{
+    sf::Vector2i mousePos = sf::Mouse::getPosition(_window);
+    return  mousePos.x > 0 && mousePos.x <= _window.getSize().x &&
+           mousePos.y > 0 && mousePos.y <= _window.getSize().y;
+}
+
+sf::Vector2f UnitManip::selectNewUnitPosition(const sf::RenderWindow& _window)
+{
+    sf::Vector2f newPos;
+    if(UnitManip::mouseIsInScreenBorders(_window))
+    {
+        newPos =   sf::Vector2f(
+                   sf::Mouse::getPosition(_window).x
+                 , sf::Mouse::getPosition(_window).y)
+                 + memorisUnit->movingUnitOffset; // last setting position of controlled unit
+    }
+    else
+    {
+        newPos = UnitManip::coordinatePositionToWindow(memorisUnit->unitToManip->getPosition(), _window);
+    }
+    
+    return newPos;
+}
+
+sf::Vector2f UnitManip::coordinatePositionToWindow(const sf::Vector2f& _pos, const sf::RenderWindow& _window)
+{
+    sf::Vector2f fixedPos;
+    if (_pos.x > _window.getSize().x) fixedPos.x = _window.getSize().x;
+    else if(_pos.x < 0) fixedPos.x = 0;
+    else fixedPos.x = _pos.x;
+    if(_pos.y > _window.getSize().y) fixedPos.y = _window.getSize().y;
+    else if(_pos.y < 0) fixedPos.y = 0;
+    else fixedPos.y = _pos.y;
+
+    return fixedPos;
+}
+
 sf::Vector2f UnitManip::getDirVec(const sf::Vector2f& _first, const sf::Vector2f& _second)
 {
     sf::Vector2f directionalVector = _first - _second;                                      // correct direction
