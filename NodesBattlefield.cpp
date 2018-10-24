@@ -189,12 +189,13 @@ void NodesBattlefield::handleUnitsAction(Node* _unit, bool _pressed)
 
 void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
 {
-    if( _pressed )
+    if ( _pressed )
     {
-        if( manip_state == none && _unit )
+        if( manip_state == none && _unit ) // we have chosen units to manipulate
         {
             manip_state = moving;
             unitManipulator.memorisUnit->unitToManip = _unit;
+            unitManipulator.memorisUnit->movingUnitOffset = UnitManip::getDirVec(_unit->getPosition(), getMousePos());
         }
         else if( manip_state == moving )
         {
@@ -202,17 +203,18 @@ void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
             unitManipulator.updateTransitions(_unit);
         }
     }
-    else if( !_pressed )
+    else if ( !_pressed )
     {
         if( manip_state == moving )
         {
             if( unitManipulator.memorisUnit->unitWasMoved )
             {
-                unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos()); // last setting position of controlled unit
+                unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos()+unitManipulator.memorisUnit->movingUnitOffset); // last setting position of controlled unit
                 unitManipulator.memorisUnit->unitWasMoved = false;
             }
-            manip_state = none;                                         // we've stopped moving
+            manip_state = none;                                                      // we've stopped moving
             unitManipulator.memorisUnit->unitToManip = nullptr;                      // we're no longer manipulating this unit
+            unitManipulator.memorisUnit->movingUnitOffset = sf::Vector2f(0.f, 0.f);
         }
     }
 }
@@ -227,7 +229,7 @@ void NodesBattlefield::handlePlayerMouseMove()
     if( manip_state == moving )
     {
         unitManipulator.memorisUnit->unitWasMoved = true;
-        unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos());
+        unitManipulator.memorisUnit->unitToManip->setPosition(getMousePos() + unitManipulator.memorisUnit->movingUnitOffset);
         unitManipulator.updateTransitions(unitManipulator.memorisUnit->unitToManip);
     }
 }

@@ -6,7 +6,7 @@
 
 UnitManip::UnitManip()
 : connectionsMap()
-, memorisUnit(nullptr)
+, memorisUnit(new MemorisUnit())
 {}
 
 UnitManip& UnitManip::getInstance()
@@ -15,29 +15,26 @@ UnitManip& UnitManip::getInstance()
     return instance;
 }
 
+sf::Vector2f UnitManip::getDirVec(const sf::Vector2f& _first, const sf::Vector2f& _second)
+{
+    sf::Vector2f directionalVector = _first - _second;                                      // correct direction
+    return directionalVector;
+}
+
 ThicknessLine* UnitManip::connect2Units( Node* _connecter, Node* _connected, sf::Color _color )
 {
     // for testing purpuses, line is leaking, shall b auto as object member and deleted with destruction
 
-    sf::Vector2f dirVecNorm = _connected->getPosition() - _connecter->getPosition(); // from connecter to connected
+    sf::Vector2f dirVecNorm = UnitManip::getDirVec(_connected->getPosition(), _connecter->getPosition()); // from connecter to connected
 
-    double length = sqrt(pow(dirVecNorm.x, 2) + pow(dirVecNorm.y, 2));
-
-    dirVecNorm = sf::Vector2f( 
-             static_cast<float>(dirVecNorm.x/length)
-           , static_cast<float>(dirVecNorm.y/length));
-
-   
     sf::Vector2f connecterPos = _connecter->getPosition();
     sf::Vector2f connectedPos = _connected->getPosition();
 
     while ( _connecter->getSprite().getGlobalBounds().contains(connecterPos) )
         connecterPos += dirVecNorm;
 
-
     while ( _connected->getSprite().getGlobalBounds().contains(connectedPos) )
         connectedPos -= dirVecNorm;
-
 
     auto* connector = new ThicknessLine( connecterPos, connectedPos, _color );
     return connector;
@@ -118,5 +115,6 @@ MemorisUnit::MemorisUnit()
 : unitWasMoved(false)
 , unitToManip(nullptr)
 , currentlyCreatedLine(nullptr)
+, movingUnitOffset({0.f, 0.f})
 {}
 // END_MEMORIS_UNIT

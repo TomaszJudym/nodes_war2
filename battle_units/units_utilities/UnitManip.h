@@ -42,6 +42,9 @@ struct MemorisUnit
     bool           unitWasMoved;
     Node*          unitToManip;
     ThicknessLine* currentlyCreatedLine;
+    // to avoid first-frame-move when unit is "jumping" to center with cursor
+    // in first frame of moving it
+    sf::Vector2f   movingUnitOffset;
 };
 
 struct UnitManip
@@ -50,16 +53,17 @@ private:
     std::map< ConnectionData*, ThicknessLine* > connectionsMap;
 
 public:
-    static ThicknessLine* connect2Units( Node* _connecter, Node* _connected, sf::Color _color = sf::Color(118, 56, 100) );
-    MemorisUnit*          memorisUnit;
+    static ThicknessLine*        connect2Units( Node* _connecter, Node* _connected, sf::Color _color = sf::Color(118, 56, 100) );
+    static sf::Vector2f          getDirVec(const sf::Vector2f&, const sf::Vector2f&);
+    std::unique_ptr<MemorisUnit> memorisUnit;
 
-    void                  addConnection(Node* _connecter, Node* _connected);
-    const                 std::map< ConnectionData*, ThicknessLine* >* getConnectionsMap();
-    void                  updateTransitions(Node* _changedNode);
+    void                        addConnection(Node* _connecter, Node* _connected);
+    const                       std::map< ConnectionData*, ThicknessLine* >* getConnectionsMap();
+    void                        updateTransitions(Node* _changedNode);
 
 
-    static UnitManip&     getInstance();
-    UnitManip&            operator=(const UnitManip&) = delete;
+    static UnitManip&           getInstance();
+    UnitManip&                  operator=(const UnitManip&) = delete;
     UnitManip(const UnitManip&) = delete;
 private:
     UnitManip();
