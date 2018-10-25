@@ -4,8 +4,6 @@
 
 #include "User.h"
 
-sf::Texture User::image = sf::Texture();
-
 const std::map< int, std::wstring > User::names = []
 {
     std::map< int, std::wstring > retMap;
@@ -20,11 +18,11 @@ const std::map< int, std::wstring > User::names = []
 
 size_t User::userCount = 0;
 
-std::shared_ptr<User> User::spawnUser( const sf::Vector2f& _pos )
+std::shared_ptr<User> User::spawnUser( const sf::Vector2f& _pos, sf::Texture& _texture )
 {
     std::cout << "spawing user: " << _pos.x << " " << _pos.y << std::endl;
     if (userCount <= 5)
-        return std::shared_ptr<User>(new User(_pos));
+        return std::shared_ptr<User>(new User(_pos, _texture));
     else
     {
         // TODO -> will be useful with menu to choose units, now its dangerous
@@ -34,16 +32,15 @@ std::shared_ptr<User> User::spawnUser( const sf::Vector2f& _pos )
     }
 }
 
-std::shared_ptr<User> User::spawnUser( float _x, float _y )
+std::shared_ptr<User> User::spawnUser( float _x, float _y, sf::Texture& _texture )
 {
-    return User::spawnUser( sf::Vector2f(_x, _y) );
+    return User::spawnUser( sf::Vector2f(_x, _y), _texture );
 }
 
-User::User( const sf::Vector2f& _pos ) :
-Node( _pos ),
+User::User( const sf::Vector2f& _pos, sf::Texture& _texture ) :
+Node( _pos, _texture ),
 connectedServerPtr(nullptr)
 {
-    initSprite(User::image);
     setName( names.at(userCount) );
     initText();
     userCount++;
@@ -60,11 +57,6 @@ void User::makeConnection( Node* _target )
     {
         std::wcerr << "ERROR server already assigned to " << name << std::endl;
     }
-}
-
-sf::Texture& User::getTexture()
-{
-    return image;
 }
 
 User::~User()

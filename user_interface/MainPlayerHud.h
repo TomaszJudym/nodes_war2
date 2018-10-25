@@ -14,9 +14,10 @@
 #include <SFML/Window/Window.hpp>
 
 class MainPlayerHud {
+    sf::RenderWindow& window;
     const int width;
     const int height;
-    sf::RenderWindow& window;
+
 };
 
 

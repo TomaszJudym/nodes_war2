@@ -18,14 +18,21 @@ UnitManip& UnitManip::getInstance()
 bool UnitManip::mouseIsInScreenBorders(const sf::RenderWindow& _window)
 {
     sf::Vector2i mousePos = sf::Mouse::getPosition(_window);
-    return  mousePos.x > 0 && mousePos.x <= _window.getSize().x &&
-           mousePos.y > 0 && mousePos.y <= _window.getSize().y;
+    return  mousePos.x > 0 && mousePos.x < _window.getSize().x &&
+           mousePos.y > 0 && mousePos.y < _window.getSize().y;
 }
 
-sf::Vector2f UnitManip::selectNewUnitPosition(const sf::RenderWindow& _window)
+bool UnitManip::unitIsInScreenBorders(Node* _unit, const sf::RenderWindow& _window)
+{
+    sf::Vector2f pos = _unit->getPosition();
+    return pos.x > 0 && pos.x <= _window.getSize().x &&
+           pos.y > 0 && pos.y <= _window.getSize().y;
+}
+
+sf::Vector2f UnitManip::selectNewUnitPosition(Node* _unit, const sf::RenderWindow& _window)
 {
     sf::Vector2f newPos;
-    if(UnitManip::mouseIsInScreenBorders(_window))
+    if(UnitManip::mouseIsInScreenBorders(_window) && UnitManip::unitIsInScreenBorders(_unit, _window))
     {
         newPos =   sf::Vector2f(
                    sf::Mouse::getPosition(_window).x
@@ -42,12 +49,21 @@ sf::Vector2f UnitManip::selectNewUnitPosition(const sf::RenderWindow& _window)
 
 sf::Vector2f UnitManip::coordinatePositionToWindow(const sf::Vector2f& _pos, const sf::RenderWindow& _window)
 {
+    // _pos is origin pointing to middle of unit, gonna add, and substract half of size
+    // in every direction to avoid going out of screen
+    //TODO refactor comparisons, instead of sf::Vector2f, Node* as argument,
+    // TODO it will give getSprite()->top / right / left methods for comparisons
     sf::Vector2f fixedPos;
-    if (_pos.x > _window.getSize().x) fixedPos.x = _window.getSize().x;
-    else if(_pos.x < 0) fixedPos.x = 0;
+    float unitHeight = memorisUnit->unitToManip->getSprite().getGlobalBounds().height;
+    float unitWidth = memorisUnit->unitToManip->getSprite().getGlobalBounds().width;
+
+    // +1 to satisfy condition "greater than" in comparisons
+    if (_pos.x + unitWidth/2 > _window.getSize().x) fixedPos.x = _window.getSize().x - unitWidth/2;
+    else if(_pos.x - unitWidth/2 < 0) fixedPos.x = unitWidth/2 + 1;
     else fixedPos.x = _pos.x;
-    if(_pos.y > _window.getSize().y) fixedPos.y = _window.getSize().y;
-    else if(_pos.y < 0) fixedPos.y = 0;
+
+    if(_pos.y + unitHeight/2 > _window.getSize().y) fixedPos.y = _window.getSize().y - unitHeight/2;
+    else if(_pos.y - unitHeight/2 < 0) fixedPos.y = unitHeight/2 + 1;
     else fixedPos.y = _pos.y;
 
     return fixedPos;

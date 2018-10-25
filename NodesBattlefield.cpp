@@ -13,6 +13,7 @@ NodesBattlefield::NodesBattlefield()
 : window(sf::VideoMode(1400, 1050), "nodes_war", sf::Style::Close | sf::Style::Titlebar)
 , manip_state(none)
 , unitManipulator(UnitManip::getInstance())
+, texturesHolder(std::make_unique<ResourceHolder<sf::Texture, const std::string>>())
 {
     initLoad();
 }
@@ -26,8 +27,9 @@ bool NodesBattlefield::initLoad()
     window.setActive(false); // deactivating OpenGL context, because
                              // it can run only in 1 thread at the same time
 
-    User::getTexture().loadFromFile("img/computer630x630.jpg"); // image of all User sprites
-    Server::getTexture().loadFromFile("img/server800x800.jpg");
+    texturesHolder->load("server1", "img/server800x800.jpg");
+    texturesHolder->load("user1", "img/computer630x630.jpg");
+
 
     servers.reserve(10);
     users.reserve(10);
@@ -35,13 +37,13 @@ bool NodesBattlefield::initLoad()
     terminal = make_unique<Terminal>();
     if(!terminal) initPassed = false;
 
-    users.emplace_back( User::spawnUser(400.f, 350.f));
-    users.emplace_back( User::spawnUser(800.f, 500.f));
-    users.emplace_back( User::spawnUser(350.f, 650.f));
-    users.emplace_back( User::spawnUser(150.f, 700.f));
-    users.emplace_back( User::spawnUser(500.f, 860.f));
+    users.emplace_back( User::spawnUser(400.f, 350.f, texturesHolder->get("user1")));
+    users.emplace_back( User::spawnUser(800.f, 500.f, texturesHolder->get("user1")));
+    users.emplace_back( User::spawnUser(350.f, 650.f, texturesHolder->get("user1")));
+    users.emplace_back( User::spawnUser(150.f, 700.f, texturesHolder->get("user1")));
+    users.emplace_back( User::spawnUser(500.f, 860.f, texturesHolder->get("user1")));
 
-    servers.emplace_back( "DANK_3", sf::Vector2f(150, 300));
+    servers.emplace_back( "DANK_3", sf::Vector2f(150, 300), texturesHolder->get("server1"));
 
     std::cout << "serv: " << sizeof(Server) << " usr: " << sizeof(User) << std::endl;
 
@@ -199,7 +201,7 @@ void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
         }
         else if ( manip_state == moving )
         {
-            sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(window);
+            sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(_unit, window);
 
             unitManipulator.memorisUnit->unitToManip->setPosition(newPos);
             unitManipulator.updateTransitions(_unit);
@@ -211,7 +213,7 @@ void NodesBattlefield::handleUnitsMove(Node* _unit, bool _pressed)
         {
             if ( unitManipulator.memorisUnit->unitWasMoved )
             {
-                sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(window);
+                sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(unitManipulator.memorisUnit->unitToManip, window);
                 unitManipulator.memorisUnit->unitToManip->setPosition(newPos);
                 unitManipulator.memorisUnit->unitWasMoved = false;
             }
@@ -231,7 +233,7 @@ void NodesBattlefield::handlePlayerMouseMove()
 {
     if ( manip_state == moving )
     {
-        sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(window);
+        sf::Vector2f newPos = unitManipulator.selectNewUnitPosition(unitManipulator.memorisUnit->unitToManip, window);
 
         unitManipulator.memorisUnit->unitToManip->setPosition(newPos);
         unitManipulator.memorisUnit->unitWasMoved = true;

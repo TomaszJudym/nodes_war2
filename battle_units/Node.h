@@ -22,7 +22,7 @@ protected:
     void                    initSprite(const sf::Texture& _texture);
     void                    initText();
 public:
-    explicit                Node(const sf::Vector2f& _pos);
+    explicit                Node(const sf::Vector2f& _pos, sf::Texture& _texture);
                             Node( const Node& _cpyNode );
     void                    setPosition( const sf::Vector2f& _pos );
     void                    draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const override;

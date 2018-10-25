@@ -6,9 +6,11 @@
 
 sf::Font Node::font = sf::Font();
 
-Node::Node(const sf::Vector2f& _pos) :
+Node::Node(const sf::Vector2f& _pos, sf::Texture& _texture) :
 position(_pos)
-{}
+{
+    initSprite(_texture);
+}
 
 Node::Node( const Node& _cpyNode ) :
 name( _cpyNode.name ),

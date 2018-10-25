@@ -14,6 +14,7 @@
 #include <SFML/Window/Event.hpp>
 
 #include "Terminal.h"
+#include "Tools/ResourceHolder.hpp"
 #include "battle_units/Server.h"
 #include "battle_units/User.h"
 #include "battle_units/units_utilities/UnitManip.h"
@@ -46,6 +47,7 @@ class NodesBattlefield
 
     std::unique_ptr<Terminal>                 terminal;
 
+    std::unique_ptr<ResourceHolder<sf::Texture, const std::string>> texturesHolder;
     sf::RenderWindow                          window;
 
     NodesBattlefield(); // we can have only 1 instance of battlefield
