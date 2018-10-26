@@ -12,15 +12,20 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/View.hpp>
 
 #include "Terminal.h"
 #include "Tools/ResourceHolder.hpp"
 #include "battle_units/Server.h"
 #include "battle_units/User.h"
 #include "battle_units/units_utilities/UnitManip.h"
+#include "user_interface/MainPlayerHud.h"
 
 class NodesBattlefield
 {
+    static const float VIEW_HEIGHT;
+    static const float VIEW_WIDTH;
+
     bool                                      initLoad();
 
     void                                      processEvents();
@@ -36,6 +41,7 @@ class NodesBattlefield
     void                                      handleUnitsMove(Node* _unit, bool _pressed);
     inline void                               backToChoosingState();
 
+    void                                      resizeView(const sf::RenderWindow& _window, sf::View& _view);
     Node*                                     containsUnit(const sf::Vector2f& _pos);
 
     const sf::Vector2f                        getMousePos();
@@ -46,10 +52,10 @@ class NodesBattlefield
     UnitManip&                                unitManipulator;
 
     std::unique_ptr<Terminal>                 terminal;
-
+    MainPlayerHud&                            playerHud;
     std::unique_ptr<ResourceHolder<sf::Texture, const std::string>> texturesHolder;
     sf::RenderWindow                          window;
-
+    sf::View                                  mainView;
     NodesBattlefield(); // we can have only 1 instance of battlefield
 public:
     static NodesBattlefield&                   getInstance();

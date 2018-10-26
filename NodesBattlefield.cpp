@@ -9,11 +9,16 @@ using std::make_unique;
 using std::cout;
 using std::endl;
 
+const float NodesBattlefield::VIEW_WIDTH = 1400.f;
+const float NodesBattlefield::VIEW_HEIGHT = 768.f;
+
 NodesBattlefield::NodesBattlefield()
-: window(sf::VideoMode(1400, 1050), "nodes_war", sf::Style::Close | sf::Style::Titlebar)
+: window(sf::VideoMode(1400, 768), "nodes_war", sf::Style::Close | sf::Style::Titlebar)
 , manip_state(none)
 , unitManipulator(UnitManip::getInstance())
 , texturesHolder(std::make_unique<ResourceHolder<sf::Texture, const std::string>>())
+, playerHud(MainPlayerHud::getInstance(1400, 200, window))
+, mainView(sf::Vector2f(0.f, 0.f), sf::Vector2f(VIEW_WIDTH, VIEW_HEIGHT))
 {
     initLoad();
 }
@@ -29,7 +34,12 @@ bool NodesBattlefield::initLoad()
 
     texturesHolder->load("server1", "img/server800x800.jpg");
     texturesHolder->load("user1", "img/computer630x630.jpg");
+    texturesHolder->load("mainHudBackground", "img/mainHudBackground.jpg");
+    texturesHolder->load("inventorySpace", "img/inventorySpace.jpg");
 
+    texturesHolder->get("mainHudBackground").setRepeated(true); // image to short for screen width
+
+    playerHud.initHud(texturesHolder->get("mainHudBackground"), texturesHolder->get("inventorySpace"), texturesHolder->get("user1"));
 
     servers.reserve(10);
     users.reserve(10);
@@ -41,13 +51,20 @@ bool NodesBattlefield::initLoad()
     users.emplace_back( User::spawnUser(800.f, 500.f, texturesHolder->get("user1")));
     users.emplace_back( User::spawnUser(350.f, 650.f, texturesHolder->get("user1")));
     users.emplace_back( User::spawnUser(150.f, 700.f, texturesHolder->get("user1")));
-    users.emplace_back( User::spawnUser(500.f, 860.f, texturesHolder->get("user1")));
+    users.emplace_back( User::spawnUser(500.f, 630.f, texturesHolder->get("user1")));
 
     servers.emplace_back( "DANK_3", sf::Vector2f(150, 300), texturesHolder->get("server1"));
 
     std::cout << "serv: " << sizeof(Server) << " usr: " << sizeof(User) << std::endl;
 
     return initPassed;
+}
+
+void NodesBattlefield::resizeView(const sf::RenderWindow& _window, sf::View& _view)
+{
+    float aspectRatio = static_cast<float>(_window.getSize().x) / static_cast<float>(_window.getSize().y);
+
+    mainView.setSize(aspectRatio * VIEW_HEIGHT, VIEW_HEIGHT);
 }
 
 NodesBattlefield& NodesBattlefield::getInstance()
@@ -103,6 +120,8 @@ void NodesBattlefield::processEvents()
                 handlePlayerMouseMove();
                 break;
 
+            case sf::Event::Resized:
+               // resizeView(window, mainView); // TODO decide is resizing neccesary
             default:
                 break;
         }
@@ -271,6 +290,11 @@ void NodesBattlefield::update()
 void NodesBattlefield::render()
 {
     window.clear(sf::Color::Black);
+    mainView.setCenter(window.getSize().x / 2, window.getSize().y / 2);
+    window.setView(mainView);
+
+
+    playerHud.draw(window);
 
     terminal->draw(window);
 
