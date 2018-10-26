@@ -24,8 +24,8 @@ void MainPlayerHud::initHud(sf::Texture& _back, sf::Texture& _inventory, sf::Tex
 
 
     backgroundSprite.setOrigin(fwidth/2, fheight/2);                                  // middle of background tab
-    backgroundSprite.setPosition(fwidth/2             // middle of screen
-                               , window.getSize().y - fheight/2);                                         // bottom of screen like in RTS games
+    backgroundSprite.setPosition(fwidth/2                                             // middle of screen
+                               , window.getSize().y - fheight/2);                     // bottom of screen like in RTS games
 
     // inventory sprite to right side of HUD
     inventorySprite.setOrigin(inventorySprite.getGlobalBounds().width / 2, inventorySprite.getGlobalBounds().height / 2);
@@ -35,7 +35,7 @@ void MainPlayerHud::initHud(sf::Texture& _back, sf::Texture& _inventory, sf::Tex
     unitPortraitSprite.setOrigin(unitPortraitSprite.getGlobalBounds().width/2, unitPortraitSprite.getGlobalBounds().height/2);
     unitPortraitSprite.setScale(0.20f, 0.20f);
 
-    unitPortraitSprite.setPosition(inventorySprite.getPosition().x - inventorySprite.getGlobalBounds().width/2 - unitPortraitSprite.getGlobalBounds().width/2
+    unitPortraitSprite.setPosition(inventorySprite.getPosition().x - inventorySprite.getGlobalBounds().width/2 - unitPortraitSprite.getGlobalBounds().width
                                  , inventorySprite.getPosition().y);
 }
 
@@ -57,3 +57,23 @@ void MainPlayerHud::draw(sf::RenderTarget& _rw, sf::RenderStates _states) const
     _rw.draw(inventorySprite);
     _rw.draw(unitPortraitSprite);
 }
+
+ChosenUnitData::ChosenUnitData(sf::Font& _font, sf::Texture& _portrait)
+: unitName("_undfined_", _font, 12)
+, unitHealth("-- / --", _font, 15)
+{
+    unitName.setOrigin(unitName.getGlobalBounds().width / 2, unitName.getGlobalBounds().height / 2);
+    unitHealth.setOrigin(unitHealth.getGlobalBounds().width / 2, unitHealth.getGlobalBounds().height / 2);
+    
+    unitPortrait.setTexture(_portrait);
+    unitPortrait.setOrigin(unitPortrait.getGlobalBounds().width/2, unitPortrait.getGlobalBounds().height/2);
+
+}
+
+void draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const;
+void ChosenUnitData::setPosition(const sf::Vector2f& _pos)
+{
+    unitPortrait.setPosition(_pos);
+    unitName.setPosition(_pos.x, _pos.y - unitPortrait.getGlobalBounds().height/2 - unitName.getGlobalBounds().height);
+}
+void setPortrait();
