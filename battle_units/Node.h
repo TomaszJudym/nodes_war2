@@ -27,13 +27,10 @@ public:
     void                    setPosition( const sf::Vector2f& _pos );
     void                    draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const override;
     const sf::Vector2f&     getPosition() const;
-    const sf::Sprite&       getSprite();
-    const std::wstring&     getName();
+    sf::Sprite&             getSprite();
+    std::wstring&           getName();
     inline void             setName( const std::wstring& _name ) { name = _name; }
- //   inline void setName( const std::string& _name ) {
- //       std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
- //       name = converter.from_bytes( _name.c_str() );
- //   }
+    static sf::Font&        getFont();
 
     virtual void             makeConnection( Node* _target ) = 0;
     virtual                  ~Node() = default;

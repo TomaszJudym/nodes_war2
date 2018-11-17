@@ -24,10 +24,16 @@ class ChosenUnitData : public sf::Drawable{
     unsigned   maxHp;
     unsigned   currentHp;
 public:
-    ChosenUnitData(sf::Font& _font, sf::Texture& _portrait);
+    ChosenUnitData(sf::Font&  _font);
     void draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const override;
     void setPosition(const sf::Vector2f& _pos);
-    void setPortrait();
+    void setPosition(float, float);
+    void setFont(sf::Font& _font);
+    void setName(const std::wstring _name);
+    void setPortrait(sf::Sprite& _spr);
+    void setHp(const unsigned& _hp);
+    inline sf::Sprite& getPortrait() { return unitPortrait; }
+    inline const sf::Sprite& getPortrait() const { return unitPortrait; }
 };
 
 class MainPlayerHud : public sf::Drawable{
@@ -36,16 +42,18 @@ class MainPlayerHud : public sf::Drawable{
     const int width;
     const int height;
     sf::Sprite backgroundSprite;
-    sf::Sprite unitPortraitSprite;
     sf::Sprite inventorySprite;
+    ChosenUnitData unitData;
 
-    MainPlayerHud(unsigned _width, unsigned _height, sf::RenderWindow& _window);
+    void setUnitPortrait(sf::Sprite& _newPortrait);
+
+    MainPlayerHud(unsigned _width, unsigned _height, sf::Font& _font, sf::RenderWindow& _window);
 public:
-    static MainPlayerHud& getInstance(unsigned _width, unsigned _height, sf::RenderWindow& _window);
+    static MainPlayerHud& getInstance(unsigned _width, unsigned _height, sf::Font& _font, sf::RenderWindow& _window);
 
     void draw(sf::RenderTarget& _rw, sf::RenderStates = sf::RenderStates::Default) const override;
-    void initHud(sf::Texture& _back, sf::Texture& _inventory, sf::Texture& _portrait);
-    void setUnitPortrait(sf::Sprite& _newPortrait);
+    void initHud(sf::Texture& _back, sf::Texture& _inventory, sf::Sprite& _portrait);
+    void updateUnitData(sf::Sprite& _portrait, std::wstring& _name, int _hp);
 
 
     MainPlayerHud(const MainPlayerHud&) = delete;

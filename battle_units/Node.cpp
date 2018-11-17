@@ -39,7 +39,7 @@ void Node::initSprite(const sf::Texture& _texture)
     sprite.setPosition( position );
 }
 
-const sf::Sprite& Node::getSprite()
+sf::Sprite& Node::getSprite()
 {
     return sprite;
 }
@@ -62,7 +62,7 @@ void Node::setTextPosition( float _x, float _y )
     displayedName.setPosition( _x, _y );
 }
 
-const std::wstring& Node::getName()
+std::wstring& Node::getName()
 {
     return name;
 }
@@ -70,4 +70,9 @@ const std::wstring& Node::getName()
 const sf::Vector2f& Node::getPosition() const
 {
     return position;
+}
+
+sf::Font& Node::getFont()
+{
+    return font;
 }

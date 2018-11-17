@@ -17,7 +17,7 @@ NodesBattlefield::NodesBattlefield()
 , manip_state(none)
 , unitManipulator(UnitManip::getInstance())
 , texturesHolder(std::make_unique<ResourceHolder<sf::Texture, const std::string>>())
-, playerHud(MainPlayerHud::getInstance(1400, 200, window))
+, playerHud(MainPlayerHud::getInstance(1400, 200, Node::getFont(), window))
 , mainView(sf::Vector2f(0.f, 0.f), sf::Vector2f(VIEW_WIDTH, VIEW_HEIGHT))
 {
     initLoad();
@@ -39,7 +39,7 @@ bool NodesBattlefield::initLoad()
 
     texturesHolder->get("mainHudBackground").setRepeated(true); // image to short for screen width
 
-    playerHud.initHud(texturesHolder->get("mainHudBackground"), texturesHolder->get("inventorySpace"), texturesHolder->get("user1"));
+
 
     servers.reserve(10);
     users.reserve(10);
@@ -54,6 +54,8 @@ bool NodesBattlefield::initLoad()
     users.emplace_back( User::spawnUser(500.f, 630.f, texturesHolder->get("user1")));
 
     servers.emplace_back( "DANK_3", sf::Vector2f(150, 300), texturesHolder->get("server1"));
+
+    playerHud.initHud(texturesHolder->get("mainHudBackground"), texturesHolder->get("inventorySpace"), users[0]->getSprite());
 
     std::cout << "serv: " << sizeof(Server) << " usr: " << sizeof(User) << std::endl;
 
@@ -171,6 +173,8 @@ void NodesBattlefield::handlePlayerInputMouse( sf::Mouse::Button _button, bool _
     }
     else if ( _button == sf::Mouse::Left )
     {
+            if (clickedUnit != unitManipulator.memorisUnit->unitToManip)
+                playerHud.updateUnitData(clickedUnit->getSprite(), clickedUnit->getName(), 52);
             handleUnitsMove(clickedUnit, _pressed);
     }
 
